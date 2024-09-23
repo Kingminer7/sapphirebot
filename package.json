@@ -4,7 +4,6 @@
   "description": "",
   "main": "bot.js",
   "scripts": {
-    "install": "npm i",
     "test": "nodemon .",
     "start": "node ."
   },
