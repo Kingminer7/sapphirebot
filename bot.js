@@ -39,14 +39,14 @@ const commandFiles = fs
 for (const file of commandFiles) {
   const filePath = path.join(__dirname, "commands", file);
   const command = require(filePath).slash;
-  if ("data" in command && "execute" in command) {
+  if (command && "data" in command && "execute" in command) {
     client.commands.set(command.data.name, command);
     commands.push(command.data.toJSON());
   } else {
     console.error(`Invalid command file: ${filePath}`);
   }
   const cm = require(filePath).context;
-  if ("data" in cm && "execute" in cm) {
+  if (cm && "data" in cm && "execute" in cm) {
     client.cms.set(cm.data.name, cm);
     commands.push(cm.data.toJSON());
   } else {
