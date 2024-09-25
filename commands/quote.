@@ -1,0 +1,88 @@
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+
+/*
+DB should be setup like this:
+id (int) primary, increment
+message (string)
+messageId (int)
+senderId (int)
+quoterId (int)
+replyingToId (int)
+mediaUrl (string) can be null
+createdAt (timestamp)
+*/
+
+const postgres = require("pg");
+const { Client } = postgres;
+const client = new Client();
+
+client.connect();
+
+module.exports = {
+  slash: {
+    data: new SlashCommandBuilder()
+      .setName("quote")
+      .setDescription("Quotes")
+      .addSubcommand((subcommand) =>
+        subcommand
+          .setName("get")
+          .setDescription("Get a quote")
+          .addStringOption((option) =>
+            option
+              .setName("name")
+              .setDescription("The quote to get.")
+              .setRequired(true)
+          )
+      )
+      .addSubcommand((subcommand) =>
+        subcommand
+          .setName("random")
+          .setDescription("Get a random quote")
+          .addUserOption((option) =>
+            option
+              .setName("user")
+              .setDescription("The user to get a quote from.")
+          )
+      )
+      .addSubcommand((subcommand) =>
+        subcommand
+          .setName("remove")
+          .setDescription("Remove a quote")
+          .addStringOption((option) =>
+            option
+              .setName("name")
+              .setDescription("The quote to remove.")
+              .setRequired(true)
+          )
+      ),
+    async execute(interaction) {
+      await interaction.deferReply();
+
+      const subcommand = interaction.options.getSubcommand();
+
+      if (subcommand === "get") {
+        const name = interaction.options.getString("name");
+        const result = await client.query(
+          "SELECT * FROM quotes WHERE message = $1",
+          [name]
+        );
+        const quote = result.rows[0];
+        if (!quote) {
+          await interaction.followUp({ content: "Quote not found.", ephemeral: true });
+          return;
+        }
+        const embed = new EmbedBuilder()
+          .setTitle("Quote")
+          .setDescription(quote.message)
+          .setTimestamp(quote.createdAt);
+        await interaction.editReply({ embeds: [embed] });
+      } else if (subcommand === "random") {
+        const user = interaction.options.getUser("user");
+        await interaction.editReply(`Getting random quote from: ${user}`);
+      } else if (subcommand === "remove") {
+        const name = interaction.options.getString("name");
+        await interaction.editReply(`Removing quote: ${name}`);
+      }
+    },
+  },
+};

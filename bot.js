@@ -11,7 +11,10 @@ const fs = require("fs");
 const path = require("path");
 const { token, userId } = process.env;
 
-const client = new Client({ intents: [IntentsBitField.Flags.GuildMessages] });
+const client = new Client({ intents: [
+  IntentsBitField.Flags.GuildMessages,
+  IntentsBitField.Flags.Guilds
+] });
 
 const eventFiles = fs
   .readdirSync(path.join(__dirname, "events"))
@@ -27,6 +30,7 @@ for (const file of eventFiles) {
 }
 
 client.commands = new Collection();
+client.cms = new Collection();
 const commands = [];
 
 const commandFiles = fs
@@ -34,10 +38,17 @@ const commandFiles = fs
   .filter((file) => file.endsWith(".js"));
 for (const file of commandFiles) {
   const filePath = path.join(__dirname, "commands", file);
-  const command = require(filePath);
+  const command = require(filePath).slash;
   if ("data" in command && "execute" in command) {
     client.commands.set(command.data.name, command);
     commands.push(command.data.toJSON());
+  } else {
+    console.error(`Invalid command file: ${filePath}`);
+  }
+  const cm = require(filePath).context;
+  if ("data" in cm && "execute" in cm) {
+    client.cms.set(cm.data.name, cm);
+    commands.push(cm.data.toJSON());
   } else {
     console.error(`Invalid command file: ${filePath}`);
   }
@@ -65,14 +76,6 @@ const rest = new REST().setToken(token);
 
 client.login(token);
 
-const express = require("express");
-const app = express();
-const port = 3000;
+const web = require("./panel.js")
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+module.exports = client;
