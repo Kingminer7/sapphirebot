@@ -42,15 +42,11 @@ for (const file of commandFiles) {
   if (command && "data" in command && "execute" in command) {
     client.commands.set(command.data.name, command);
     commands.push(command.data.toJSON());
-  } else {
-    console.error(`Invalid command file: ${filePath}`);
   }
   const cm = require(filePath).context;
   if (cm && "data" in cm && "execute" in cm) {
     client.cms.set(cm.data.name, cm);
     commands.push(cm.data.toJSON());
-  } else {
-    console.error(`Invalid command file: ${filePath}`);
   }
 }
 

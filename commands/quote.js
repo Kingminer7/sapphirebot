@@ -12,12 +12,6 @@ mediaUrl (string) can be null
 createdAt (timestamp)
 */
 
-const postgres = require("pg");
-const { Client } = postgres;
-const client = new Client();
-
-client.connect();
-
 module.exports = {
   slash: {
     data: new SlashCommandBuilder()
@@ -55,33 +49,33 @@ module.exports = {
               .setRequired(true)
           )
       ),
-    async execute(interaction) {
+    async execute(interaction, client) {
       await interaction.deferReply();
 
       const subcommand = interaction.options.getSubcommand();
 
       if (subcommand === "get") {
-        const name = interaction.options.getString("name");
-        const result = await client.query(
-          "SELECT * FROM quotes WHERE message = $1",
-          [name]
-        );
-        const quote = result.rows[0];
-        if (!quote) {
-          await interaction.followUp({ content: "Quote not found.", ephemeral: true });
-          return;
+        if (interaction.options.getString("name") === "309") {
+          const embed = new EmbedBuilder()
+            .setTitle("309")
+            .setDescription("kindly remove the developer role from yourself")
+            .addFields(
+              {
+                name: " ",
+                value: "\\- <@851210524254928907> to <@126110044625305600> in ⁠https://discord.com/channels/911701438269386882/911702535373475870/1208902801942650900 by <@369929907700105226>",
+              }
+            )
+            .setColor("#201c24")
+            .setFooter({ text: "02/18/2024 5:29 PM"});
+
+          await interaction.editReply({
+            embeds: [embed],
+          });
+        } else {
+          await interaction.editReply("Not implemented yet.");
         }
-        const embed = new EmbedBuilder()
-          .setTitle("Quote")
-          .setDescription(quote.message)
-          .setTimestamp(quote.createdAt);
-        await interaction.editReply({ embeds: [embed] });
-      } else if (subcommand === "random") {
-        const user = interaction.options.getUser("user");
-        await interaction.editReply(`Getting random quote from: ${user}`);
-      } else if (subcommand === "remove") {
-        const name = interaction.options.getString("name");
-        await interaction.editReply(`Removing quote: ${name}`);
+      } else {
+        await interaction.editReply("Not implemented yet.");
       }
     },
   },
