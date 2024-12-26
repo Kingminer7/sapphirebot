@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ContextMenuCommandBuilder, ApplicationCommandType, ContextMenuCommandInteraction } = require("discord.js");
+const { SlashCommandBuilder, ContextMenuCommandBuilder, ApplicationCommandType, ContextMenuCommandInteraction, InteractionContextType, ApplicationIntegrationType } = require("discord.js");
 const fs = require("fs");
 const https = require("https");
 const { execFile } = require("child_process");
@@ -23,7 +23,9 @@ module.exports = {
           .setName("sym2")
           .setDescription("The second symbol file")
           .setRequired(false)
-      ),
+      )
+      .setContexts([InteractionContextType.BotDM, InteractionContextType.Guild, InteractionContextType.PrivateChannel])
+      .setIntegrationTypes([ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall]),
     async execute(interaction) {
       await interaction.deferReply();
 
@@ -82,7 +84,7 @@ module.exports = {
     data: new ContextMenuCommandBuilder()
       .setName("Stackwalk")
       .setType(ApplicationCommandType.Message),
-      // : import("discord.js").Interaction
+    // : import("discord.js").Interaction
     async execute(interaction, client) {
       const dumpMsg = await interaction.channel.messages.cache.get(interaction.targetId);
       const dump = dumpMsg.attachments.first();

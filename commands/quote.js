@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, InteractionContextType, ApplicationIntegrationType } = require("discord.js");
 
 /*
 DB should be setup like this:
@@ -48,7 +48,9 @@ module.exports = {
               .setDescription("The quote to remove.")
               .setRequired(true)
           )
-      ),
+      )
+      .setContexts([InteractionContextType.BotDM, InteractionContextType.Guild, InteractionContextType.PrivateChannel])
+      .setIntegrationTypes([ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall]),
     async execute(interaction, client) {
       await interaction.deferReply();
 
